@@ -1,0 +1,486 @@
+﻿<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/jquery-1.10.1.min.js"></script><!-- jquery reference-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/CommonJS.js"></script><!-- all the common code available-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/SPApproverGrid.js"></script><!-- SP reviewer grid js-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/TPN/tpnjs/TPNApproverGrid.js"></script><!-- TPN reviewer grid js-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/JV/jvjs/JVApproverGrid.js"></script><!-- JV reviewer grid js-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/jquery.min.js"></script><!-- jquery reference-->
+<script type="text/javascript" src="/Style%20Library/SP/JS/jquery.loading.min.js"></script><!-- for loader-->
+<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/bootstrap.min.js"></script><!-- for popups-->
+<script type="text/javascript" src="/Style%20Library/SP/JS/jquery.SPServices-2014.02.min_.js"></script><!-- for checking login user belongs to which group-->
+
+
+<iframe id="txtArea1" style="display:none"></iframe>
+
+<script type="text/javascript">	
+	
+	var loginusername="";
+	var documentId = "";
+	var tpnDocumentId ='';
+	var arrayname = new Array();
+  $(document).ready(function() {
+    debugger;
+    $.showLoading({
+  			name: 'circle-turn-scale'
+  		});
+  		
+    GetCurrentloginUser()
+    $("#JvApprvrGRID").hide();
+    $("#TPNapprvergrid").hide();
+    $("#SPapprvergrid").show();
+    
+    $("#TPNpageNavPosition").hide();
+	$("#JVpageNavPosition").hide();
+	$("#SPpageNavPosition").show();    
+  SPgetListItemsForApprovers(DocumentlistName, siteurl, SPgetListItemsForApproverssuccess, SPgetListItemsForApproversfailure);
+  //SPgetItemsForApproversPaging(topcount,skipcountnew,SPgetListItemsForApproverssuccess, SPgetListItemsForApproversfailure);
+});
+</script>
+<!doctype html>
+<html>
+
+<style type="text/css">
+.checkboxmargin {
+	margin-left: 200px;
+}
+.row {
+	margin-left: 0px;
+}
+.div {
+	padding-bottom: 20px;
+}
+.msg-left{
+	float:left;
+	width:100%;
+}
+.msg-right{
+	float:right;
+	margin-left:0;
+}
+.checkbox.checkbox-pd{
+	padding-top:0;
+}
+.form-control.textarea-mt{
+margin-top: 10px;
+    width: 360px;
+}
+.close.close-color {
+	color:#000;
+}
+</style>
+
+<head>
+<meta charset="utf-8">
+<title>Global Business Travel</title>
+<link rel="stylesheet" type="text/css" href="/Style%20Library/SP/css/style.css"><!-- for popups-->
+<link rel="stylesheet" type="text/css" href="/Style Library/SP/css/loading.min.css"><!-- for loader-->
+
+</head>
+
+<body>
+
+<div class="content body">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<ul class="nav nav-tabs list-menu pull-right">
+				<li class="active"><a href="#letters" data-toggle="tab" onclick="SPapprovergrid()">SP</a></li>
+				<li><a href="#emails" data-toggle="tab" onclick="TPNapprovergrid()">TPN</a></li>
+				<li><a href="#loglist" data-toggle="tab" onclick="JvApprovergrid()">JV</a></li>				
+				<li><a href="#excel" data-toggle="tab" id="btnExport" onclick="SPExcelReport()">
+				<i class="fa fa-file-text-o" aria-hidden="true"></i>Export to excel</a></li>					
+				</ul>
+				<div class="clearfix">
+				</div>
+				<div class="tab-content">
+					<div class="tab-pane fade in active" id="letters">
+						<table class="table table-striped" id="SPapprvergrid" style="display: none">
+							<thead>
+								<tr class="header">
+								<!--<th></th>-->									
+								<td width="150px"><span id="proj-filter" index=0 class="pointer excelhidespan">Project Name<div style="text-align: left" class="filter"></div></span><span onclick="Projectsort()"  class="pointer fa fa-sort"></span></td>					
+								<td width="90px"><span id="proj-filter" index=1 class="pointer excelhidespan">Status<div style="text-align: left" class="filter"></div></span><span onclick="Statussort()" class="pointer fa fa-sort"></span></td>
+								<td  style="text-align: center;width:185px;" class="excelhide"><span id="proj-filter" index=2>Actions<div></div></span></td>
+								<td><span id="proj-filter" index=3 class="pointer excelhidespan">Date Submitted<div style="text-align: left" class="filter"></div></span><span onclick="CreatedDatesort()"  id="Datesort" class="pointer fa fa-sort"></span></td>
+								<td><span id="proj-filter" index=4 class="pointer excelhidespan">Submitted by<div style="text-align: left" class="filter"></div></span><span onclick="AuthorSort()" class="pointer fa fa-sort"></span></td>
+								<td><span id="proj-filter" index=5 class="pointer excelhidespan">Last Activity<div style="text-align: left" class="filter"></div></span><span onclick="ModifiedSort()" class="pointer fa fa-sort"></span></td>
+								<td><span id="proj-filter" index=6 class="pointer excelhidespan">SP Compliance<div style="text-align: left" class="filter"></div></span><span onclick="SPCompliancesort()"  id="SPCompliancesort" class="pointer fa fa-sort"></span></td>
+								<td><span id="proj-filter" index=7 class="pointer excelhidespan">SP Legal<div style="text-align: left" class="filter"></div></span><span onclick="SPLegalsort()"  class="pointer fa fa-sort"></span></td>
+								<td><span id="proj-filter" index=8 class="pointer excelhidespan">SP Brand<div style="text-align: left" class="filter"></div></span><span onclick="SPBrandsort()" class="pointer fa fa-sort"></span></td>										
+								<td><span id="proj-filter" index=9 class="pointer excelhidespan">AXP Brand<div style="text-align: left" class="filter"></div></span><span onclick="AXPBrandsort()"  class="pointer fa fa-sort"></span></td>																												
+								<!--<th style="display:none">SP Compliance</th>
+								<th style="display:none">SP Legal</th>
+								<th style="display:none">SP Brand</th>
+								<th style="display:none">AXP Brand</th>	-->								
+								<th style="display:none">Where will this document be used</th>
+								<th style="display:none">Who is the intended audience</th>
+								<th style="display:none">Review Type</th>
+								<th style="display:none">Brief document description</th>
+								<th style="display:none">Is this an email communication</th>									
+								</tr>
+							</thead>
+							<tbody id="Approvertable1"></tbody>
+						</table>
+						<div id="SPexceltable" style="display:none"></div>
+						<div id="SPpageNavPosition" style="padding-top: 20px" align="center"></div>
+						<script type="text/javascript">
+						 	var pager = new Pager('SPapprvergrid', 10); 
+						      pager.init(); 
+						       pager.showPageNav('pager', 'SPpageNavPosition'); 
+						       pager.showPage(1);
+						 </script>
+
+						<!--TPN page-->
+					<div class="tab-pane fade" id="emails">
+						<table class="table table-striped" id="TPNapprvergrid" style="display: none">
+							<thead>
+								<tr class="header">
+									<!--<th></th>-->									
+									<td width="150px"><span id="proj-filter" index=0 class="pointer excelhidespan">Project Name<div style="text-align: left" class="filter"></div></span><span onclick="TPNProjectsort()"  id="TPNprojectsortID" class="pointer fa fa-sort"></span></td>					
+									<td width="100px"><span id="proj-filter" index=1 class="pointer excelhidespan">Status<div style="text-align: left" class="filter"></div></span><span onclick="TPNStatussort()"  id="Statussort" class="pointer fa fa-sort"></span></td>
+									<td  style="text-align: center;width:185px;" class="excelhide"><span id="proj-filter" index=2>Actions<div></div></span></td>
+									<td><span id="proj-filter" index=3 class="pointer excelhidespan">Date Submitted<div style="text-align: left" class="filter"></div></span><span onclick="TPNCreatedDatesort()"  id="Datesort" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=4 class="pointer excelhidespan">Submitted by<div style="text-align: left" class="filter"></div></span><span onclick="TPNAuthorSort()"  id="authorsortby" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=5 class="pointer excelhidespan">Last Activity<div style="text-align: left" class="filter"></div></span><span onclick="TPNModifiedSort()"  id="DatesortLast" class="pointer fa fa-sort"></span></td>									
+									<td><span id="proj-filter" index=6 class="pointer excelhidespan">SP Compliance<div style="text-align: left" class="filter"></div></span><span onclick="TPNCompliancesort()"  id="SPCompliancesort" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=7 class="pointer excelhidespan">SP Legal<div style="text-align: left" class="filter"></div></span><span onclick="TPNLegalsort()"  class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=8 class="pointer excelhidespan">SP Brand<div style="text-align: left" class="filter"></div></span><span onclick="TPNBrandsort()" class="pointer fa fa-sort"></span></td>										
+									<td><span id="proj-filter" index=9 class="pointer excelhidespan">AXP Brand<div style="text-align: left" class="filter"></div></span><span onclick="TPNAXPBrandsort()"  class="pointer fa fa-sort"></span></td>																												
+									<th style="display:none">Where will this document be used</th>
+									<th style="display:none">Who is the intended audience</th>
+									<th style="display:none">Review Type</th>
+									<th style="display:none">Brief document description</th>
+									<th style="display:none">Is this an email communication</th>
+								</tr>
+							</thead>
+							<tbody id="TPNApprovertable"></tbody>
+						</table>
+						<div id="TPNpageNavPosition" style="padding-top: 20px" align="center"></div>
+						<script type="text/javascript">
+						 	var pager1 = new Pager('TPNapprvergrid', 10); 
+						      pager1.init(); 
+						       pager1.showPageNav('pager1', 'TPNpageNavPosition'); 
+						       pager1.showPage(1);
+						 </script>
+					</div>
+					<!--TPN page-->
+					<!--jv page-->
+					<div class="tab-pane fade" id="loglist">
+						<table class="table table-striped" id="JvApprvrGRID" style="display: none">
+							<thead>
+								<tr class="header">
+									<!--<th></th>-->									
+									<td width="150px"><span id="proj-filter" index=0 class="pointer excelhidespan">Project Name<div style="text-align: left" class="filter"></div></span><span onclick="JVProjectsort()"  id="jvprojectsortID" class="pointer fa fa-sort"></span></td>					
+									<td width="100px"><span id="proj-filter" index=1 class="pointer excelhidespan">Status<div style="text-align: left" class="filter"></div></span><span onclick="JVStatussort()"  id="Statussort" class="pointer fa fa-sort"></span></td>
+									<td  style="text-align: center;width:185px;" class="excelhide"><span id="proj-filter" index=2>Actions<div></div></span></td>
+									<td><span id="proj-filter" index=3 class="pointer excelhidespan">Date Submitted<div style="text-align: left" class="filter"></div></span><span onclick="JVCreatedDatesort()"  id="Datesort" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=4 class="pointer excelhidespan">Submitted by<div style="text-align: left" class="filter"></div></span><span onclick="JVAuthorSort()"  id="authorsortby" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=5 class="pointer excelhidespan">Last Activity<div style="text-align: left" class="filter"></div></span><span onclick="JVModifiedSort()"  id="DatesortLast" class="pointer fa fa-sort"></span></td>									
+									<td><span id="proj-filter" index=6 class="pointer excelhidespan">SP Compliance<div style="text-align: left" class="filter"></div></span><span onclick="JVCompliancesort()"  id="SPCompliancesort" class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=7 class="pointer excelhidespan">SP Legal<div style="text-align: left" class="filter"></div></span><span onclick="JVLegalsort()"  class="pointer fa fa-sort"></span></td>
+									<td><span id="proj-filter" index=8 class="pointer excelhidespan">SP Brand<div style="text-align: left" class="filter"></div></span><span onclick="JVBrandsort()" class="pointer fa fa-sort"></span></td>										
+									<td><span id="proj-filter" index=9 class="pointer excelhidespan">AXP Brand<div style="text-align: left" class="filter"></div></span><span onclick="JVAXPBrandsort()"  class="pointer fa fa-sort"></span></td>																												
+									<th style="display:none">Where will this document be used</th>
+									<th style="display:none">Who is the intended audience</th>
+									<th style="display:none">Review Type</th>
+									<th style="display:none">Brief document description</th>
+									<th style="display:none">Is this an email communication</th>
+								</tr>
+							</thead>
+							<tbody id="JVApprovertable"></tbody>
+						</table>
+						<div id="JVpageNavPosition" style="padding-top: 20px" align="center"></div>
+						<script type="text/javascript">
+						 	var pager2 = new Pager('JvApprvrGRID', 10); 
+						      pager2.init(); 
+						       pager2.showPageNav('pager2', 'JVpageNavPosition'); 
+						       pager2.showPage(1);
+						 </script>
+					<!--/jv page--></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--SP-->
+<div class="modal fade" id="SPmyModalmessages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="myModalLabel">Document Messages</h4>
+			</div>
+			<div class="modal-body">
+				<div class="main-popup">
+					<div class="left-list-poup">
+						<!--<div class="pro-img-popup"> <img src="/Style Library/SP/css/Img.png"> </div>
+            <div class="tab-name">
+              <h5>Alex Jones (5/1/16)</h5>
+              <h6>Compliance Manager</h6>
+            </div>--></div>
+					<div class="content-scroll-msgs">
+						<div id="SPmsgesconent">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group width-formgrup">
+					<textarea class="form-control" placeholder="Message" id="SPdescriptionid" onkeypress="SPmyFunction()"></textarea>
+
+				</div>
+				<div id="SPlookupdocid" style="display: none">
+				</div>
+				<div class="pull-right mt">
+					<!--<input type="button" value="Submit" /> -->
+					<button type="button" class="btn btn-colse" style="display: none">Submit</button>
+					<button type="button" class="btn btn-colse" id="SPcloseid" onclick="SPChangeattribute()">Close</button></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!---SP--->
+<!---tpn--->
+<div class="modal fade" id="TPNmyModalmessages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="myModalLabel">Document Messages</h4>
+			</div>
+			<div class="modal-body">
+				<div class="main-popup">
+					<div class="left-list-poup">
+						<!--<div class="pro-img-popup"> <img src="/Style Library/SP/css/Img.png"> </div>
+            <div class="tab-name">
+              <h5>Alex Jones (5/1/16)</h5>
+              <h6>Compliance Manager</h6>
+            </div>--></div>
+					<div class="content-scroll-msgs">
+						<div id="TPNmsgesconent">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group width-formgrup">
+					<textarea class="form-control" placeholder="Message" id="TPNdescriptionid" onkeypress="TPNmyFunction()"></textarea>
+				</div>
+				<div id="TPNlookupdocid" style="display: none">
+				</div>
+				<div class="pull-right mt">
+					<!--<input type="button" value="Submit" /> -->
+					<button type="button" class="btn btn-colse" style="display: none">
+					Submit</button>
+					<button type="button" class="btn btn-colse" id="TPNcloseid" onclick="TPNChangeattribute()">
+					Close</button></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!---tpn--->
+<!---JV--->
+<div class="modal fade" id="JVmyModalmessages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="myModalLabel">Document Messages</h4>
+			</div>
+			<div class="modal-body">
+				<div class="main-popup">
+					<div class="left-list-poup">
+						<!--<div class="pro-img-popup"> <img src="/Style Library/SP/css/Img.png"> </div>
+            <div class="tab-name">
+              <h5>Alex Jones (5/1/16)</h5>
+              <h6>Compliance Manager</h6>
+            </div>--></div>
+					<div class="content-scroll-msgs">
+						<div id="JVmsgesconent">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="form-group width-formgrup">
+					<textarea class="form-control" placeholder="Message" id="JVdescriptionid" onkeypress="JVmyFunction()"></textarea>
+				</div>
+				<div id="JVlookupdocid" style="display: none">
+				</div>
+				<div class="pull-right mt">
+					<!--<input type="button" value="Submit" /> -->
+					<button type="button" class="btn btn-colse" style="display: none">
+					Submit</button>
+					<button type="button" class="btn btn-colse" id="JVcloseid" onclick="JVChangeattribute()">
+					Close</button></div>
+			</div>
+		</div>
+	</div>
+</div>
+<!---JV--->
+
+<!--SPdocument preview@sireesha--->
+<div class="modal fade" id="SPpreviewModal" tabindex="-1" role="dialog" aria-labelledby="infoLabel">
+	<div class="modal-dialog" role="document" style="width: 95%">
+		<div class="modal-content">
+			<div class="content-panel">
+			<div class="modal-header">
+	          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	          <h4 class="modal-title">Document View</h4>
+        	</div>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="popup-panel">
+							<!--<div class="popup-panel-bg">
+								<h2>Document View</h2>
+							</div>-->
+							<div class="popup-panel-left">
+								<div class="popup-panel-left-bg text-right">
+									<div class="icon-width">
+										<!--<a href="#"> 
+                            	<i class="fa fa-download fa-2x"></i>
+                                	<div class="icon-span">Download a copy</div>
+                                </a>--></div>
+								</div>
+								<div class="content-panel">
+									<iframe id="SPpreviewframe" width="100%" height="800px">
+									</iframe></div>
+							</div>
+							<div class="popup-panel-right">
+								<div class="popup-panel-right-bg">
+									<h2>Document Messages</h2>
+								</div>
+								<div class="content-panel">
+									<div class="tab-panel">
+										<div class="left-list">
+											<!--<div class="pro-img">
+												<img src="/Style%20Library/SP/css/Img.png" />
+											</div>
+											<div class="tab-name">
+												<h5>Alex Jones</h5>
+												<h6>Compliance Manager</h6>
+											</div>-->
+										</div>
+										<div class="right-list">
+											<ul class="tab-list-menu text-right">
+												<li>
+												<a href="#letters">Constituents</a></li>
+												<li class="active"><a href="#emails">Submitter</a></li>
+											</ul>
+										</div>
+									</div>
+										<div id="MessagesDiv">
+										
+										</div>
+								</div>
+							</div>
+							<div class="popup-panel-right">
+								<div class="popup-panel-right-bg">
+									<h2>Details</h2>
+								</div>
+								<div class="content-panel">
+									<div class="tab-panel">
+										<div class="right-list-details">
+											<ul class="tab-list-menu text-right" id="previewpropertiesActions">
+												<!-- <li class="active" id="SPactions"><a href="#letters" onclick="Actioninpreview()"> Actions</a></li>
+                                        <li id="SPProperties"><a href="#emails" onclick="propertiesinpreview()"> Properties</a></li>--->
+											</ul>
+										</div>
+									</div>
+									<div>
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-horizontal" id="SPworkflowdetails" style="display: none">
+													<h4 class="action-title">Review 
+													Action:</h4>
+													<div id="previewdetails-right">
+												</div>	
+												</div>
+												<div class="col-md-12 details" id="SPdetails">
+												</div>
+												<div class="col-md-12 emails" id="SPemailid">
+												</div>
+												<div class="col-md-12 emails" id="ALLcomments">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="loader" style="display: block;">
+			</div>
+		</div>
+	</div>
+</div>
+
+			
+			
+		<!--SP document details-->	
+			<div class="modal fade" id="myModalDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Document Details</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="main-popup">
+                  	<div class="right-list-popup">
+                      <ul class="tab-list-menu" id="tab-list-menuID">
+                        <!--<li class="" id="detailscls"><a href="#letters" data-toggle="tab" aria-expanded="false" onclick="Gethistory()"> History</a></li>
+                        <li class="active" id="historycls"><a href="#emails" data-toggle="tab" aria-expanded="true" onclick="Getdetails()"> Details</a></li>--->                     
+                      </ul>
+                    </div>
+                    <div class="information">
+                      <div class="row">
+                        <div class="col-md-6" id="informationid"> </div>
+                        <div class="col-md-6" id="emailid"> </div>
+                        <div class="col-md-12" id="departmntid"></div>
+                         </div>
+                         <div style="display:none" id="detialsdiv">
+                          </div>
+
+                    </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+		<!--SP document details end-->
+
+<!---additional recipient popup---->
+			<div class="modal fade" id="additinalrecipientpopup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog modal-dialog-recipient" role="document">
+					<div class="modal-content">
+						<div class="modal-header-recipient">
+							<button type="button" class="close close-color" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span></button>
+							<h4 class="modal-title-recipient" id="myModalLabel">
+							Enter additional recipients (separate by comma).</h4>
+						</div>
+						<div class="modal-body">
+						<div id="additionalrecipienttext">
+							<!--<textarea class="form-control" id="recipienttext" placeholder="Enter emails here, hit enter when finished..."></textarea>
+							<div style="display:none" id="hiddenrecipient"></div>--->
+						</div>
+						</div>
+                       </div>
+				</div>
+			</div>
+			<!---additional recipient popup---->
+			
+			<style>
+			.right-list-popup {
+              border-bottom: 1px solid #000;
+              margin: 0;
+              padding: 10px 10px 0;
+              width: 100%;
+            }
+
+			</style>

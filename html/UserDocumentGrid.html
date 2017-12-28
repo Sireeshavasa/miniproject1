@@ -1,0 +1,509 @@
+﻿<script language="javascript" type="text/javascript" src="/Style Library/SP/js/jquery-1.10.1.min.js"></script>
+<script language="javascript" type="text/javascript" src="/Style%20Library/SP/js/CommonJS.js"></script>
+<script language="javascript" type="text/javascript" src="/Style Library/SP/js/userDocuments.js"></script>
+<script language="javascript" type="text/javascript" src="/Style Library/SP/js/bootstrap.min.js"></script>
+<script  type="text/javascript" src="/Style Library/SP/JS/jquery.SPServices-2014.02.min_.js"></script>
+<script type="text/javascript" src="/Style Library/SP/JS/jquery.loading.min.js"></script>
+<script language="javascript" type="text/javascript" src="/Style Library/SP/js/jquery-ui.js"></script>
+
+<script type="text/javascript">
+
+/* Global variable declarations */
+  var documentId = ""
+  var arrayname = new Array();
+  /*On page load*/
+  $(document).ready(function() {
+  $.showLoading({
+  			name: 'circle-turn'
+  		});
+  		
+/*Function to get currently logged on user */
+  GetCurrentloginUser();
+  
+/*Function to get all  items from  document library*/
+  GetDocumentItems(GetDocumentItemssuccess, GetDocumentItemsfailure);
+});
+</script>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Global Business Travel</title>
+  <link rel="stylesheet" type="text/css" href="/Style Library/SP/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/Style Library/SP/css/loading.min.css">
+  <link rel="stylesheet" href="/Style Library/SP/css/jquery-ui.css"><!-- for autocomplte-->
+  </head>
+
+<body>
+  <div class="content body">
+    <div class="container">
+      <div class="row">
+        <div class="btn-center">
+          <button type="button" class="btn submit-document" data-toggle="modal" data-target="#myModal" onclick="SPsubmitdocument()">Submit a Document</button>
+        </div>
+      </div>
+      <div class="col-md-12">
+		<ul class="nav nav-tabs list-menu pull-right">							
+			<li><a href="#excel" data-toggle="tab" id="btnExport" onclick="SPExcelReport()">
+			<i class="fa fa-file-text-o" aria-hidden="true"></i>Export to excel</a></li>					
+		</ul>
+        <table class="table table-condensed" id="SPtableid">
+          <thead>
+            <tr class="header">								
+				<td width="150px"><span id="proj-filter" index=0 class="pointer excelhidespan">Project Name<div style="text-align: left" class="filter"></div></span><span onclick="Projectsort()"  class="pointer fa fa-sort"></span></td>					
+				<td width="100px"><span id="proj-filter" index=1 class="pointer excelhidespan">Status<div style="text-align: left" class="filter"></div></span><span onclick="Statussort()" class="pointer fa fa-sort"></span></td>
+				<td  style="text-align: center;width:250px;" class="excelhide"><span id="proj-filter" index=2>Actions<div></div></span></td>
+				<td><span id="proj-filter" index=3 class="pointer excelhidespan">Date Submitted<div style="text-align: left" class="filter"></div></span><span onclick="CreatedDatesort()"  id="Datesort" class="pointer fa fa-sort"></span></td>
+				<td><span id="proj-filter" index=4 class="pointer excelhidespan">Last Activity<div style="text-align: left" class="filter"></div></span><span onclick="ModifiedSort()" class="pointer fa fa-sort"></span></td>
+				<td><span id="proj-filter" index=5 class="pointer excelhidespan">SP Compliance<div style="text-align: left" class="filter"></div></span><span onclick="SPCompliancesort()"  id="SPCompliancesort" class="pointer fa fa-sort"></span></td>
+				<td><span id="proj-filter" index=6 class="pointer excelhidespan">SP Legal<div style="text-align: left" class="filter"></div></span><span onclick="SPLegalsort()"  class="pointer fa fa-sort"></span></td>
+				<td><span id="proj-filter" index=7 class="pointer excelhidespan">SP Brand<div style="text-align: left" class="filter"></div></span><span onclick="SPBrandsort()" class="pointer fa fa-sort"></span></td>										
+				<td><span id="proj-filter" index=8 class="pointer excelhidespan">AXP Brand<div style="text-align: left" class="filter"></div></span><span onclick="AXPBrandsort()"  class="pointer fa fa-sort"></span></td>																												
+				<td><span id="proj-filter" index=9 class="pointer excelhidespan">Alerts<div style="text-align: left" class="filter"></div></span><span class="pointer fa fa-sort"></span></td>																												
+            	
+				<!--<th style="width:125px;text-align:left" class="pointer fa fa-sort" id="projectsort">Document Title</th>
+				<th style="width:100px;text-align:center" class="pointer fa fa-sort" id="Statussort">Status</th>
+				<th style="width:202px;text-align:center">Actions</th>
+				<th style="width:125px;text-align:center" class="pointer fa fa-sort" id="Datesort">Date Submitted</th>
+				<th style="width:125px;text-align:center" class="pointer fa fa-sort" id="authorsortby">Last Activity</th>				
+				<th style="width:135px;text-align:center" class="pointer fa fa-sort" id="SPcomplianceId">SP Compliance</th>
+				<th style="width:100px;text-align:center" class="pointer fa fa-sort" id="SPlegalId">SP Legal</th>
+				<th style="width:100px;text-align:center" class="pointer fa fa-sort" id="SPbrandId">SP Brand</th>
+				<th style="width:100px;text-align:center" class="pointer fa fa-sort" id="AXPbrandId">AXP Brand</th>
+				<th style="width:100px;text-align:center" class="pointer fa fa-sort" id="DatesortLast">Alerts</th>--->									
+				<th style="display:none">Where will this document be used</th>
+				<th style="display:none">Who is the intended audience</th>
+				<th style="display:none">Review Type</th>
+				<th style="display:none">Brief document description</th>
+				<th style="display:none">Is this an email communication</th>
+            </tr>
+          </thead>
+          <tbody id="testtable">          
+          </tbody>
+        </table>
+        <div id="pageNavPosition" style="padding-top: 20px" align="center"></div> 
+				<script type="text/javascript">
+				 var pager = new Pager('SPtableid', 20); 
+				        pager.init(); 
+				        pager.showPageNav('pager', 'pageNavPosition'); 
+				        pager.showPage(1);
+				</script>
+      </div>
+      <div style="display:none" id="nodocumentdid"></div>
+    </div>
+  </div>
+  <div class="modal fade" id="SPmyModalUploadDoc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" id="test">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Submit a Document</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <div class="col-md-12">
+                <input id="inputFile" type="file" />
+              </div>
+            </div>
+            <div>
+              <h4 class="title-lg">Document Details <a data-toggle="modal" data-target="#infoModal" href="#" onclick="SPChecklist()"><span class="glyphicon glyphicon-info-sign"></span></a></h4>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Project Name<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="projectnameid" value="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Country of origin<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <select class="form-control" id="Countryid">
+                  
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Target market<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <select class="form-control" id="marketid">
+                  
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Intended audience<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <select class="form-control" id="audienceid">
+                 </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Review Type<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <select class="form-control" id="Reviewid">
+                 </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Document description</label>
+              <div class="col-sm-6">
+                <textarea class="form-control" id="decriptnid"></textarea>
+              </div>
+            </div>            
+            <div class="form-group">
+              <label class="col-sm-5 control-label">Is this an email communication</label>
+              <div class="col-sm-6">
+                <label class="radio-inline">
+                  <input type="radio" name="chooseone" id="radioid" value="Yes">Yes</label>
+                  <label class="radio-inline">
+                    <input type="radio" name="chooseone" id="radioidno" value="No">No</label>
+                  </div>
+                </div>
+              <div style="display:none" id="emailcommnctnYES">
+                <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">From address<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="frmaddressid" value="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Reply to address<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="Rplyaddressid" value="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Complete subject line<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="subjectlineid" value="">
+              </div>
+            </div>
+                <div class="form-group">
+                  <label class="col-sm-offset-1 col-sm-4 control-label">Audience size<span class="mandatory">*</span></label>
+                  <div class="col-sm-6">
+                    <!--<select class="form-control" id="audiencesizeid">
+                      </select>-->
+                      <textarea id="audiencesizeid" class="form-control"></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-offset-1 col-sm-4 control-label">Email platform<span class="mandatory">*</span></label>
+                  <div class="col-sm-6">
+                    <select class="form-control" id="Emailmarktngid">
+                     </select>
+                  </div>
+                </div>
+              </div>
+                <div class="form-group text-center">
+                  <button type="button" class="btn details" onclick="uploadFile()">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+        </body>
+
+        </html>
+        <div class="modal fade" id="myModalmessages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Document Messages</h4>
+              </div>
+              <div class="modal-body">
+	                <div class="main-popup">
+		                  <div class="left-list-poup">
+		                    <!--<div class="pro-img-popup"> <img src="/Style Library/SP/css/Img.png"> </div>
+		                    <div class="tab-name">
+		                      <h5>Alex Jones (5/1/16)</h5>
+		                      <h6>Compliance Manager</h6>
+		                    </div>-->
+		                  </div>
+	                  <div class="content-scroll-msgs">
+		                  <div id="msgesconent">
+		                  </div>
+	                   </div>
+	                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="form-group width-formgrup">
+                  <textarea class="form-control" placeholder="Message" id="descriptionid" onkeypress="SPmyFunction()"></textarea>
+                </div>
+                <div id="lookupdocid" style="display:none"></div>
+                <div class="pull-right mt">
+                  <!--<input type="button" value="Submit" /> -->
+                  <button type="button" class="btn btn-colse" style="display:none">Submit</button>
+                  <button type="button" class="btn btn-colse" id="SPcloseid" onclick="SPChangeattribute()">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--conformation popup*/--->
+
+        <div class="modal fade" id="conformtionpopup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog submital-popup" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Successfully Submission</h4>
+              </div>
+              <div class="modal-body">
+                <div class="main-popup">
+					<p class="submit-text">Your document has been successfully submitted.<br/> Please check your inbox for email confirmation.</p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="btnn-section">
+                  <button type="button" class="btn btn-colse btnn-submital" onclick="submitanother()">Submit Another</button>
+                  <button type="button" class="btn btn-colse btnn-submital" data-dismiss="modal">Close</button>                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--conformation popup--->
+<!---checklist--->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoLabel" id="checklist">
+        <div class="modal-dialog" role="document" id="infoModals">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Branding Checklist</h4>
+            </div>
+            <div class="modal-body"  id="SPbrandingchecklist">
+					
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!doctype html>
+        <html>
+<!---checklist--->
+
+        <head>
+          <meta charset="utf-8">
+          <style type="text/css">
+            .right-list-popup {
+              border-bottom: 1px solid #000;
+              margin: 0;
+              padding: 10px 10px 0;
+              width: 100%;
+            }
+            
+            .information {
+              padding: 10px;
+              width: 100%;
+            }
+            
+            
+            
+            .information span {
+              display: inline-block;
+              width: 100%;
+              font-family: Arial, Helvetica, sans-serif;
+              font-size: 18px;
+              s
+            }
+            
+            .sapn-text strong {
+              display: inline-block;
+              width: 200px;
+            }
+            .active1{
+	background-color:silver;
+}
+.mandatory{
+	color:#F00;
+}
+          </style>
+        </head>
+<!--Details resubmit--->
+        <body>
+          <div class="modal fade" id="myModalDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="myModalLabel">Document Details</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="main-popup">
+                    <div class="right-list-popup">
+                      <ul class="tab-list-menu">
+                        <li class="" id="detailscls"><a href="#letters" data-toggle="tab" aria-expanded="false" onclick="Gethistory()"> History</a></li>
+                        <li class="active" id="historycls"><a href="#emails" data-toggle="tab" aria-expanded="true" onclick="Getdetails()"> Details</a></li>
+                        <li class="" id="resubmitcls"><a href="#emails" data-toggle="tab" aria-expanded="true" onclick="Getresubmit()"> Resubmit</a></li>
+                      </ul>
+                    </div>
+                    <div class="information">
+                      <div class="row">
+                        <div class="col-md-6" id="informationid"> </div>
+                        <div class="col-md-6" id="emailid"> </div>
+                        <div class="col-md-12" id="departmntid"></div>
+                        <div style="display:none" id="uploadfile">
+                          <input id="inputFile1" type="file" />
+                          <br>
+                          <br>
+                          <label>Revise Submission Details</label>
+                          <label>
+                            <button type="button" class="btn btn-colse yes-btn" onclick="Editdocumentdetails()">Yes</button>
+                          </label>
+                          <br>
+                          <br>
+                          <label>Add new notes</label>
+                          <label>
+                            <textarea id="addnewnotesid" style="width: 500px; height:100px"></textarea>
+                          </label>
+                        </div>
+                        <div style="display:none" id="detialsdiv">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer" id="footerid">
+                      <button type="button" class="btn resub" onclick="Resubmitfile()">Resubmit</button>
+                      <button type="button" class="btn btn-colse" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+
+        </html>
+        <!--Details resubmit--->
+        <!--Details history--->
+        <div class="modal fade" id="myModalDocEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document" id="test">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">submit a Document</h4>
+              </div>
+              <div class="modal-body">
+          <div class="form-horizontal">         
+            <div>
+              <h4 class="title-lg">Document Details <a data-toggle="modal" data-target="#infoModal" href="#"></a></h4>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Project Name<span class="mandatory">*</span></label>
+              <div class="col-sm-6">
+              <input class="form-control" type="text" id="projectnameidEdit">                
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Country of origin</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="CountryidEdit">
+                  
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Target market</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="marketidEdit">
+                  
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Intended audience</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="audienceidEdit">
+                 </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Review Type</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="ReviewidEdit">
+                 </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Document description</label>
+              <div class="col-sm-6">
+                <textarea class="form-control" id="decriptnidEdit"></textarea>
+              </div>
+            </div>            
+            <div class="form-group">
+              <label class="col-sm-5 control-label">Is this an email communication</label>
+              <div class="col-sm-6">
+                <label class="radio-inline">
+                  <input type="radio" name="chooseone" id="radioidEdit" value="Yes">Yes</label>
+                  <label class="radio-inline">
+                    <input type="radio" name="chooseone" id="radioidEditNO" value="No">No</label>
+                  </div>
+                </div>
+              <div style="display:none" id="checkemaicomm">
+                <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">From address</label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="frmaddressidEdit" value="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Reply to address</label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="RplyaddressidEdit" value="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-offset-1 col-sm-4 control-label">Complete subject line</label>
+              <div class="col-sm-6">
+                <input class="form-control" type="text" id="subjectlineidEdit" value="">
+              </div>
+            </div>
+                <div class="form-group">
+                  <label class="col-sm-offset-1 col-sm-4 control-label">Audience size</label>
+                  <div class="col-sm-6">
+                    <!--<select class="form-control" id="audiencesizeidEdit">                     
+                    </select>-->
+                    <textarea class="form-control" id="audiencesizeidEdit"></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-offset-1 col-sm-4 control-label">Email platform</label>
+                  <div class="col-sm-6">
+                    <select class="form-control" id="EmailmarktngidEdit">                    
+                    </select>
+                  </div>
+                </div>
+              </div>               
+              </div>
+            </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-colse" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-colse" data-dismiss="modal" onclick="EditeduploadFile()">Resubmit</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+<!--Details history--->
+
+
+   <!--preview popup-->
+   
+
+                     	               
+            
+
+
+
+
+     
+
+
+    
+                
